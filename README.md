@@ -6,13 +6,13 @@ A [Serverless](https://serverless.com) v1.0 plugin that creates an maintains a s
 
 **Why?** 
 
-Serverless currently maintains API Gateway configuration via Cloudformation.  We like to have a clean swagger file in source control because:
+Serverless currently maintains API Gateway configuration via Cloudformation.  This does not work for us because:
 
 -  CloudFormation [has item limits](https://github.com/serverless/serverless/issues/2387)
 -  Serverless [deletes and re-creates APIG distro on every update](https://github.com/serverless/serverless/issues/2530)
 -  It is not a security best practice to allow deletion of assets from an AWS API Key (can't back with MFA)
 -  It is an industry standard, and the export swagger from the AWS console creates ugly and complex swagger
--  We can tie a swagger to a release.  This can be referenced and imported at any time into tooling like postman
+-  We can tie a swagger file to a release.  This can be referenced and imported at any time into tooling like postman
 -  We view changes to our API Gateway before deploying to different stages
 -  CloudFormation is not good for frequently changing assets because it sometimes gets into a rollback failed state.  You must delete CF and re-create.  Not fun hitting this in production
 
