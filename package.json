@@ -1,0 +1,32 @@
+{
+  "name": "serverless-plugin-swag",
+  "version": "1.0.0",
+  "description": "Serverless v1.0 plugin that creates an maintains a swagger.yaml file for API Gateway (APIG).",
+  "main": "index.js",
+  "author": "Ryan Pendergast <ryan.pendergast@gmail.com> (http://rynop.com)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/doapp-ryanp/serverless-plugin-swag.git"
+  },
+  "keywords": [
+    "serverless",
+    "1.0",
+    "plugin",
+    "swagger",
+    "swag",
+    "api gateway",
+    "apig"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/doapp-ryanp/serverless-plugin-swag/issues"
+  },
+  "homepage": "https://github.com/doapp-ryanp/serverless-plugin-swag#readme",
+  "dependencies": {
+    "bluebird": "~3.4.6",
+    "fs-extra": "~0.30.0",
+    "lodash": "^4.16.4",
+    "xtend": "~4.0.1"
+  },
+  "devDependencies": {}
+}
