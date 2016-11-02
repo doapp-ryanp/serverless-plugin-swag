@@ -4,7 +4,7 @@
 
 [![serverless](http://public.serverless.com/badges/v3.svg)](http://www.serverless.com)
 
-A [Serverless](https://serverless.com) v1.0 plugin that generates swagger.yaml for API Gateway (APIG) and uses AWS APIs to manage HTTP evented Lambdas.
+A [Serverless](https://serverless.com) v1.0 plugin that generates swagger.yaml for API Gateway (APIG) and uses AWS APIs to deploy/update HTTP evented Lambdas.
 
 ## Why? 
 
@@ -53,6 +53,7 @@ custom:
   dev:
     profile: aws-dev
     apigId: "yhpgg2j123"
+    iamRoleArnLambda: ""
   prod:
     profile: aws-prod
     apigId: "yhpgg2j123"
