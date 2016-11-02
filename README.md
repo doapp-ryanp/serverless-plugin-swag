@@ -2,19 +2,25 @@
 
 [![serverless](http://public.serverless.com/badges/v3.svg)](http://www.serverless.com)
 
-A [Serverless](https://serverless.com) v1.0 plugin that creates an maintains a swagger.yaml file for API Gateway (APIG).
+A [Serverless](https://serverless.com) v1.0 plugin that generates swagger.yaml for API Gateway (APIG) and uses AWS APIs to manage HTTP evented Lambdas.
 
 **Why?** 
 
-Serverless currently maintains API Gateway configuration via Cloudformation.  This does not work for us because:
+Serverless currently maintains API Gateway and Lambda via Cloudformation.  This does not work for us because:
 
+**CloudFormation (CF):**
 -  CloudFormation [has item limits](https://github.com/serverless/serverless/issues/2387)
--  Serverless [deletes and re-creates APIG distro on every update](https://github.com/serverless/serverless/issues/2530)
 -  It is not a security best practice to allow deletion of assets from an AWS API Key (can't back with MFA)
--  It is an industry standard, and the export swagger from the AWS console creates ugly and complex swagger
--  We can tie a swagger file to a release.  This can be referenced and imported at any time into tooling like postman
--  We view changes to our API Gateway before deploying to different stages
+-  CloudFormation is very powerful.  We like to visually validate (via diff and CF web UI diff function) exactly what is going to change.
+-  Serverless [deletes and re-creates APIG distro on every update](https://github.com/serverless/serverless/issues/2530)
 -  CloudFormation is not good for frequently changing assets because it sometimes gets into a rollback failed state.  You must delete CF and re-create.  Not fun hitting this in production
+-  CloudFormation does not stay on top of new AWS features
+
+**We prefer Swagger:**
+-  It is an industry standard, and the "export swagger" from APIG web UI creates ugly and complex swagger
+-  We can tie a swagger file to a release.  This can be referenced and imported at any time into tooling like postman
+-  We manually review changes to our API Gateway before deploying to different stages
+
 
 ## Install
 
@@ -32,8 +38,56 @@ plugins:
 
 ## Configure
 
-This plugin reburies no configuration. The only configuration option is to enable CORS for EVERY endpoint. 
+This plugin minimal configuration under the `custom.swag` namespace.  Only `custom.swag.apigId` is required. Here is an example: 
 
+```yaml
+custom:
+  swag:
+    globalCORS: 
+      allowOrigins: "*"
+      allowHeaders: "Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token"
+      allowMethods: "DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT"
+    apigId: ${self:custom.${self:provider.stage}.apigId}
+  dev:
+    profile: aws-dev
+    apigId: "yhpgg2j123"
+  prod:
+    profile: aws-prod
+    apigId: "yhpgg2j123"
+
+provider:
+  name: aws
+  runtime: nodejs4.3
+  stage: dev
+  region: us-east-1
+  deploymentBucket: ${self:provider.stage}-useast1-slsdeploys.alaynapage.org
+  profile: ${self:custom.${self:provider.stage}.profile}
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "lambda:InvokeFunction"
+      Resource: "*"
+    - Effect: "Allow"
+      Action:
+        - "s3:G*"
+        - "s3:L*"
+      Resource: "*"
+
+functions:
+  pageGet:
+    name: ${self:provider.stage}-${self:service}-pageGet
+    description: create Alayna Page
+    handler: pages/pageget.hello
+    memorySize: 512
+    timeout: 10 # optional, default is 6
+
+  pageUpdate:
+    name: ${self:provider.stage}-${self:service}-pageUpdate
+    description: update Alayna Page
+    handler: pages/pageupdate.hello
+    memorySize: 512
+    timeout: 10 # optional, default is 6    
+```
 ## Usage
 
 ## FAQ
@@ -41,6 +95,7 @@ This plugin reburies no configuration. The only configuration option is to enabl
 - **Q** A
 
 
+Tmp Backup for me
 ```yaml
 ---
 swagger: "2.0"
