@@ -4,7 +4,7 @@
 
 A [Serverless](https://serverless.com) v1.0 plugin that generates swagger.yaml for API Gateway (APIG) and uses AWS APIs to manage HTTP evented Lambdas.
 
-**Why?** 
+## Why? 
 
 Serverless currently maintains API Gateway and Lambda via Cloudformation.  This does not work for us because:
 
