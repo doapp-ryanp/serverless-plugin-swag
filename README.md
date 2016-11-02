@@ -4,7 +4,7 @@
 
 [![serverless](http://public.serverless.com/badges/v3.svg)](http://www.serverless.com)
 
-A [Serverless](https://serverless.com) v1.0 plugin that generates swagger.yaml for API Gateway (APIG) and uses AWS APIs to deploy/update HTTP evented Lambdas.
+A [Serverless](https://serverless.com) v1.0 plugin that generates swagger.yaml for API Gateway (APIG) lambda proxy and uses AWS APIs to deploy/update HTTP evented Lambdas.
 
 ## Why? 
 
@@ -53,11 +53,12 @@ custom:
   dev:
     profile: aws-dev
     apigId: "yhpgg2j123"
-    iamRoleArnLambda: ""
+    iamRoleArnLambda: ""  #Not sure if we need this yet, or if the plugin can infer it.  Need this when creating lambda
   prod:
     profile: aws-prod
     apigId: "yhpgg2j123"
-
+    iamRoleArnLambda: ""
+    
 provider:
   name: aws
   runtime: nodejs4.3
@@ -92,6 +93,12 @@ functions:
     timeout: 10 # optional, default is 6    
 ```
 ## Usage
+
+TODO:
+-  Be able to create/update functions via glob syntax. Ex: `sls swag deployFunc pages*`
+-  Create/update list of functions. Ex: `sls swag deployFunc pageGet pageUpdate`
+-  Create/update entire APIG distro
+-  Create/update one APIG resource
 
 ## FAQ
 
