@@ -68,7 +68,7 @@ provider:
     - Effect: "Allow"
       Action:
         - "lambda:InvokeFunction"
-      Resource: "*"
+      Resource: arn:aws:lambda:${self.provider.region}:254269101111:function:${self:provider.stage}-${self:service}*
     - Effect: "Allow"
       Action:
         - "s3:G*"
