@@ -1,5 +1,7 @@
 # Serverless Swagger Plugin
 
+**NOTE:** This plugin is currently under development
+
 [![serverless](http://public.serverless.com/badges/v3.svg)](http://www.serverless.com)
 
 A [Serverless](https://serverless.com) v1.0 plugin that generates swagger.yaml for API Gateway (APIG) and uses AWS APIs to manage HTTP evented Lambdas.
