@@ -1,0 +1,15 @@
+{
+  "name": "swag-basic",
+  "version": "0.0.1",
+  "description": "Showcase swag",
+  "repository": {
+    "url": "https://github.com/doapp-ryanp/serverless-plugin-swag"
+  },
+  "author": "Ryan Pendergast <ryan.pendergast@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "serverless-plugin-swag": "^1.0.0"
+  }
+}

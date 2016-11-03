@@ -40,7 +40,12 @@ plugins:
 
 ## Configure
 
-This plugin minimal configuration under the `custom.swag` namespace.  Only `custom.swag.apigId` is required. Here is an example: 
+This plugin minimal configuration under the `custom.swag` namespace.  Only 2 elments in your `serverless.yml` are required:
+ 
+1.  `custom.swag.restApiId`: the API Gateway distribution ID.
+1.  A `swagHttp` (instead of `http`) entry in `functions.FUNCTION_NAME.events`.  Currently, the only 2 attributes supported are `path` and `method`.
+
+This plugin requires that the lambda code artifact already exist (or be build outside of this plugin).  I highly recommend my [browserify plugin](https://github.com/doapp-ryanp/serverless-plugin-browserify) but you can also manually define `functions.FUNCTION.package.artifact` (see [artifacts](https://serverless.com/framework/docs/providers/aws/guide/packaging/#artifact)).
 
 ```yaml
 custom:
@@ -49,14 +54,14 @@ custom:
       allowOrigins: "*"
       allowHeaders: "Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token"
       allowMethods: "DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT"
-    apigId: ${self:custom.${self:provider.stage}.apigId}
+    restApiId: ${self:custom.${self:provider.stage}.apigId}
   dev:
     profile: aws-dev
-    apigId: "yhpgg2j123"
+    apigId: "yhpgg2jdev"
     iamRoleArnLambda: ""  #Not sure if we need this yet, or if the plugin can infer it.  Need this when creating lambda
   prod:
     profile: aws-prod
-    apigId: "yhpgg2j123"
+    apigId: "yhpgg2prod"
     iamRoleArnLambda: ""
     
 provider:
@@ -102,7 +107,7 @@ TODO:
 
 ## FAQ
 
-- **Q** A
+- **Why Swagger as JSON instead of YAML?** Because AWS only supports importing swagger as JSON :( 
 
 
 Tmp Backup for me

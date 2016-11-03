@@ -1,0 +1,76 @@
+service: simple swag
+
+package:
+  individually: true
+
+plugins:
+  - serverless-plugin-swag
+#  - serverless-plugin-browserify
+
+custom:
+  swag:
+    globalCORS:
+      allowOrigins: "*"
+      allowHeaders: "Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token"
+      allowMethods: "DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT"
+    restApiId: ${self:custom.${self:provider.stage}.apigId}
+  dev:
+    profile: aws-dev
+    apigId: "yhpgg2jdev"
+    iamRoleArnLambda: ""  #Not sure if we need this yet, or if the plugin can infer it.  Need this when creating lambda
+  prod:
+    profile: aws-prod
+    apigId: "yhpgg2prod"
+    iamRoleArnLambda: ""
+
+provider:
+  name: aws
+  runtime: nodejs4.3
+  stage: dev
+  region: us-east-1
+  deploymentBucket: ${self:provider.stage}-useast1-slsdeploys.alaynapage.org
+  profile: ${self:custom.${self:provider.stage}.profile}
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "lambda:InvokeFunction"
+      Resource: arn:aws:lambda:${self:provider.region}:254269101111:function:${self:provider.stage}-${self:service}*
+    - Effect: "Allow"
+      Action:
+        - "s3:G*"
+        - "s3:L*"
+      Resource: "*"
+
+functions:
+  pagesList:
+    name: ${self:provider.stage}-${self:service}-pagesList
+    description: list pages
+    handler: pages/list.hello
+    memorySize: 512
+    timeout: 10 # optional, default is 6
+    events:
+      - swagHttp:
+        path: pages/{id}
+        method: get
+
+  pagesGet:
+    name: ${self:provider.stage}-${self:service}-pagseGet
+    description: get page
+    handler: pages/get.hello
+    memorySize: 512
+    timeout: 10 # optional, default is 6
+    events:
+      - http:
+        path: pages/{id}
+        method: get
+
+  pagesUpdate:
+    name: ${self:provider.stage}-${self:service}-pagesUpdate
+    description: update Page
+    handler: pages/update.hello
+    memorySize: 512
+    timeout: 10 # optional, default is 6
+    events:
+      - swagHttp:
+        path: pages
+        method: put

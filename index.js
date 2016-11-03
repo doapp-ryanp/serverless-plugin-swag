@@ -2,84 +2,112 @@
 
 const BbPromise = require('bluebird');
 
-const validate  = require('./lib/validate'),
-      configure = require('./lib/configure'),
-      bundle    = require('./lib/bundle'),
-      cleanup   = require('./lib/cleanup');
+const validate     = require('./lib/validate'),
+      configure    = require('./lib/configure'),
+      buildSwagger = require('./lib/buildSwagger');
+// cleanup   = require('./lib/cleanup');
 
-class SlsBrowserify {
+class SlsSwag {
   constructor(serverless, options) {
-    this.serverless             = serverless;
-    this.options                = options;
-    this.globalBrowserifyConfig = {};
+    this.serverless       = serverless;
+    this.options          = options;
+    this.globalSwagConfig = {};
+    this.swagDefObj       = {};
 
     Object.assign(
       this,
       validate,
       configure,
-      bundle
+      buildSwagger
     );
 
     this.commands = {
-      browserify: {
-        usage:           'Bundle NodeJS lambda with Browserify',
+      swag: {
+        usage:           'Enterprise mgmt of APIG and Lambda',
         lifecycleEvents: [
-          'validate',
-          'compile',
+          'help',
         ],
-        options:         {
-          out:      {
-            usage:    'Path to output directory',
-            shortcut: 'o',
+        options:         {},
+        commands:        {
+
+          "apig-import": {
+            usage:           'Import API Gateway (overwrite or merge with -p).  --region supported',
+            lifecycleEvents: [
+              'initialize',
+              'configure',
+              'buildSwagger',
+              'import',
+              'cleanup'
+            ],
+            options:         {
+              regex:     {
+                usage:    'Regex of resource paths to import (merge mode)',
+                shortcut: 'e',
+              },
+              methods:   {
+                usage:    'CSV of methods to import. Ex: -m PUT,GET -e "^u" Ex2: -m PUT',
+                shortcut: 'm',
+              },
+              noConfirm: {
+                usage:    'Only valid if -e  or -m specified. Don\'t confirm before importing matched paths/methods',
+                shortcut: 'n',
+              },
+              out:       {
+                usage:    'Full path to where you want the swagger.json file stored. Default is swagger.json next to serverless.yml',
+                shortcut: 'o',
+              },
+            },
           },
-          function: {
-            usage:    'Name of the function',
-            shortcut: 'f',
-            required: true,
-          },
+
+          "func-deploy": {
+            usage:           'Deploy HTTP evented Lambdas via AWS APIs. --stage and --region supported',
+            lifecycleEvents: [
+              'initialize',
+              'configure',
+              'package',
+              'deploy',
+              'cleanup'
+            ],
+            options:         {
+              regex: {
+                usage:    'Regex of functions to deploy',
+                shortcut: 'e',
+              },
+            },
+          }
         },
-        commands:        {},
       },
     };
 
     this.hooks = {
-      //Handle `sls deploy`
-      'before:deploy:createDeploymentArtifacts': () => BbPromise.bind(this)
+      //Handle `sls swat apig-import`
+      'swag:apig-import:initialize': () => BbPromise.bind(this)
         .then(this.validate)
         .then(this.globalConfig)
+        .then(this.buildCoreSwagger)
         .then(() => {
           const functionNames = this.serverless.service.getAllFunctions();
-          const bundleQueue   = functionNames.map(functionName => {
-            return this.bundle(functionName);
-          });
+          // const bundleQueue   = functionNames.map(functionName => {
+          //   return this.bundle(functionName);
+          // });
+          //
+          // return BbPromise.all(bundleQueue);
+        }),
+      //
+      // //Handle `sls deploy function`
+      // 'before:deploy:function:packageFunction': () => BbPromise.bind(this)
+      //   .then(this.validate)
+      //   .then(this.globalConfig)
+      //   .then(() => this.bundle(this.options.function)),
+      //
 
-          return BbPromise.all(bundleQueue);
-        })
-        .catch(handleSkip),
-
-      //Handle `sls deploy function`
-      'before:deploy:function:packageFunction': () => BbPromise.bind(this)
-        .then(this.validate)
-        .then(this.globalConfig)
-        .then(() => this.bundle(this.options.function))
-        .catch(handleSkip),
-
-      //Handle `sls browserify`
-      'browserify:validate': () => BbPromise.bind(this)
-        .then(this.validate)
-        .then(this.globalConfig)
-        .then(() => this.bundle(this.options.function))
-        .catch(handleSkip),
+      //Handle `sls swag`
+      'swag:help': () => BbPromise.bind(this)
+        .then(() => {
+          this.serverless.cli.log('Must specify a swag command. Run "serverless swag -h"');
+        }),
     };
   }
 }
 
-function handleSkip(e) {
-  if ('skip' != e.statusCode) { //User explicitly chose to skip this function's browserification
-    throw e;
-  } else {
-    this.serverless.cli.log(`WARNING: ${e.message} SKIPPING bundling`);
-  }
-}
-
-module.exports = SlsBrowserify;
+module.exports = SlsSwag;
