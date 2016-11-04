@@ -1,6 +1,7 @@
 'use strict';
 
-const BbPromise = require('bluebird');
+const BbPromise = require('bluebird'),
+      _         = require('lodash');
 
 const validate     = require('./lib/validate'),
       configure    = require('./lib/configure'),
@@ -11,8 +12,18 @@ class SlsSwag {
   constructor(serverless, options) {
     this.serverless       = serverless;
     this.options          = options;
+    this.provider         = 'aws';
+    this.awsProvider      = this.serverless.getProvider('aws');
     this.globalSwagConfig = {};
     this.swagDefObj       = {};
+
+    //Why is this not already done by framework? https://github.com/serverless/serverless/issues/2631
+    this.options.stage  = this.options.stage
+      || (this.serverless.service.defaults && this.serverless.service.defaults.stage)
+      || 'dev';
+    this.options.region = this.options.region
+      || (this.serverless.service.defaults && this.serverless.service.defaults.region)
+      || 'us-east-1';
 
     Object.assign(
       this,
@@ -86,12 +97,17 @@ class SlsSwag {
         .then(this.globalConfig)
         .then(this.buildCoreSwagger)
         .then(() => {
+          let q               = [];
           const functionNames = this.serverless.service.getAllFunctions();
-          // const bundleQueue   = functionNames.map(functionName => {
-          //   return this.bundle(functionName);
-          // });
-          //
-          // return BbPromise.all(bundleQueue);
+          for (const fName of functionNames) {
+            q.push(this.genSwaggerPathObj(fName)
+              .then(spo => _.extend(this.swagDefObj.paths, spo)));
+          }
+
+          return BbPromise.all(q);
+        })
+        .then(() => {
+          console.log(this.swagDefObj);
         }),
       //
       // //Handle `sls deploy function`

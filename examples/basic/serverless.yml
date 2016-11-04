@@ -1,4 +1,4 @@
-service: simple swag
+service: simpleSwag
 
 package:
   individually: true
@@ -15,7 +15,7 @@ custom:
       allowMethods: "DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT"
     restApiId: ${self:custom.${self:provider.stage}.apigId}
   dev:
-    profile: aws-dev
+    profile: rynop
     apigId: "yhpgg2jdev"
     iamRoleArnLambda: ""  #Not sure if we need this yet, or if the plugin can infer it.  Need this when creating lambda
   prod:
@@ -49,20 +49,20 @@ functions:
     memorySize: 512
     timeout: 10 # optional, default is 6
     events:
-      - swagHttp:
-        path: pages/{id}
-        method: get
+      - http:   #swag plugin will ignore
+          path: pages
+          method: get
 
   pagesGet:
-    name: ${self:provider.stage}-${self:service}-pagseGet
+    name: ${self:provider.stage}-${self:service}-pagesGet
     description: get page
     handler: pages/get.hello
     memorySize: 512
     timeout: 10 # optional, default is 6
     events:
-      - http:
-        path: pages/{id}
-        method: get
+      - swagHttp:
+          path: pages/{id}
+          method: get
 
   pagesUpdate:
     name: ${self:provider.stage}-${self:service}-pagesUpdate
@@ -72,5 +72,5 @@ functions:
     timeout: 10 # optional, default is 6
     events:
       - swagHttp:
-        path: pages
-        method: put
+          path: pages
+          method: put

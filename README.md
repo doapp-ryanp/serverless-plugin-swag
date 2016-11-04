@@ -4,7 +4,7 @@
 
 [![serverless](http://public.serverless.com/badges/v3.svg)](http://www.serverless.com)
 
-A [Serverless](https://serverless.com) v1.0 plugin that generates swagger.yaml for API Gateway (APIG) lambda proxy and uses AWS APIs to deploy/update HTTP evented Lambdas.
+A [Serverless](https://serverless.com) v1.0 plugin for AWS that generates swagger.yaml for API Gateway (APIG) **lambda proxy** and uses AWS APIs to deploy/update HTTP evented Lambdas.
 
 ## Why? 
 
@@ -47,56 +47,8 @@ This plugin minimal configuration under the `custom.swag` namespace.  Only 2 elm
 
 This plugin requires that the lambda code artifact already exist (or be build outside of this plugin).  I highly recommend my [browserify plugin](https://github.com/doapp-ryanp/serverless-plugin-browserify) but you can also manually define `functions.FUNCTION.package.artifact` (see [artifacts](https://serverless.com/framework/docs/providers/aws/guide/packaging/#artifact)).
 
-```yaml
-custom:
-  swag:
-    globalCORS: 
-      allowOrigins: "*"
-      allowHeaders: "Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token"
-      allowMethods: "DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT"
-    restApiId: ${self:custom.${self:provider.stage}.apigId}
-  dev:
-    profile: aws-dev
-    apigId: "yhpgg2jdev"
-    iamRoleArnLambda: ""  #Not sure if we need this yet, or if the plugin can infer it.  Need this when creating lambda
-  prod:
-    profile: aws-prod
-    apigId: "yhpgg2prod"
-    iamRoleArnLambda: ""
-    
-provider:
-  name: aws
-  runtime: nodejs4.3
-  stage: dev
-  region: us-east-1
-  deploymentBucket: ${self:provider.stage}-useast1-slsdeploys.alaynapage.org
-  profile: ${self:custom.${self:provider.stage}.profile}
-  iamRoleStatements:
-    - Effect: "Allow"
-      Action:
-        - "lambda:InvokeFunction"
-      Resource: arn:aws:lambda:${self.provider.region}:254269101111:function:${self:provider.stage}-${self:service}*
-    - Effect: "Allow"
-      Action:
-        - "s3:G*"
-        - "s3:L*"
-      Resource: "*"
+see [example serverless.yml](./examples/basic/serverless.yml)
 
-functions:
-  pageGet:
-    name: ${self:provider.stage}-${self:service}-pageGet
-    description: create Alayna Page
-    handler: pages/pageget.hello
-    memorySize: 512
-    timeout: 10 # optional, default is 6
-
-  pageUpdate:
-    name: ${self:provider.stage}-${self:service}-pageUpdate
-    description: update Alayna Page
-    handler: pages/pageupdate.hello
-    memorySize: 512
-    timeout: 10 # optional, default is 6    
-```
 ## Usage
 
 TODO:
@@ -104,6 +56,8 @@ TODO:
 -  Create/update list of functions. Ex: `sls swag deployFunc pageGet pageUpdate`
 -  Create/update entire APIG distro
 -  Create/update one APIG resource
+-  Support events.swagHttp.authorizer and events.swagHttp.
+-  Do I need to supporot a 
 
 ## FAQ
 
